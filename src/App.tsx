@@ -1,27 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const App = () => {
-	type FormSchema = z.infer<typeof formSchema>;
-
-	const {
-		register,
-		handleSubmit,
-		reset,
-		setFocus,
-		formState: { isDirty, isSubmitting, errors },
-	} = useForm<FormSchema>();
-
-	const onSubmit: SubmitHandler<FormSchema> = (data) => {
-		console.log(data);
-		reset();
-	};
-
-	useEffect(() => {
-		setFocus('username');
-	}, []);
-
 	const formSchema = z
 		.object({
 			username: z
@@ -46,6 +28,25 @@ export const App = () => {
 			path: ['confirmPassword'],
 			message: 'Введенные пароли не совпадают',
 		});
+
+	type FormSchema = z.infer<typeof formSchema>;
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		setFocus,
+		formState: { isDirty, isSubmitting, errors },
+	} = useForm<FormSchema>({ resolver: zodResolver(formSchema) });
+
+	const onSubmit: SubmitHandler<FormSchema> = (data) => {
+		console.log(data);
+		reset();
+	};
+
+	useEffect(() => {
+		setFocus('username');
+	}, [setFocus]);
 
 	return (
 		<section className="bg-gray-50">
@@ -77,7 +78,7 @@ export const App = () => {
 									Возраст
 								</label>
 								<input
-									{...register('age')}
+									{...register('age', { setValueAs: (v) => Number(v) })}
 									type="number"
 									id="age"
 									className="input"
