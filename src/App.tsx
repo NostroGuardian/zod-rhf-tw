@@ -1,6 +1,27 @@
+import { useEffect } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const App = () => {
+	type FormSchema = z.infer<typeof formSchema>;
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		setFocus,
+		formState: { isDirty, isSubmitting, errors },
+	} = useForm<FormSchema>();
+
+	const onSubmit: SubmitHandler<FormSchema> = (data) => {
+		console.log(data);
+		reset();
+	};
+
+	useEffect(() => {
+		setFocus('username');
+	}, []);
+
 	const formSchema = z
 		.object({
 			username: z
@@ -32,68 +53,105 @@ export const App = () => {
 				<div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
 					<div className="p-6 space-y-4 md:space-y-6 sm:p-8">
 						<h1 className="title">Создание аккаунта</h1>
-						<form className="space-y-7">
+						<form className="space-y-7" onSubmit={handleSubmit(onSubmit)}>
 							<div className="mb-4">
 								<label htmlFor="username" className="label">
 									Имя пользователя *
 								</label>
 								<input
+									{...register('username')}
 									type="text"
 									id="username"
 									className="input"
 									placeholder="Ваше имя"
+									aria-invalid={errors.username ? 'true' : 'false'}
 								/>
+								{errors.username && (
+									<span role="alert" className="error">
+										{errors.username.message}
+									</span>
+								)}
 							</div>
 							<div className="mb-4">
 								<label htmlFor="age" className="label">
 									Возраст
 								</label>
 								<input
+									{...register('age')}
 									type="number"
 									id="age"
 									className="input"
 									placeholder="От 18 до 65 лет"
+									aria-invalid={errors.age ? 'true' : 'false'}
 								/>
+								{errors.age && (
+									<span role="alert" className="error">
+										{errors.age?.message}
+									</span>
+								)}
 							</div>
 							<div>
 								<label htmlFor="email" className="label">
 									Адрес электронной почты *
 								</label>
 								<input
+									{...register('email')}
 									type="email"
 									id="email"
 									className="input"
 									placeholder="name@mail.com"
+									aria-invalid={errors.email ? 'true' : 'false'}
 								/>
+								{errors.email && (
+									<span role="alert" className="error">
+										{errors.email?.message}
+									</span>
+								)}
 							</div>
 							<div>
 								<label htmlFor="password" className="label">
 									Пароль *
 								</label>
 								<input
+									{...register('password')}
 									type="password"
 									id="password"
 									placeholder="Не менее 6 символов"
 									className="input"
+									aria-invalid={errors.password ? 'true' : 'false'}
 								/>
+								{errors.password && (
+									<span role="alert" className="error">
+										{errors.password?.message}
+									</span>
+								)}
 							</div>
 							<div>
 								<label htmlFor="confirmPassword" className="label">
 									Подтверждение пароля *
 								</label>
 								<input
+									{...register('confirmPassword')}
 									type="password"
 									id="confirmPassword"
 									placeholder="Не менее 6 символов"
 									className="input"
+									aria-invalid={errors.confirmPassword ? 'true' : 'false'}
 								/>
+								{errors.confirmPassword && (
+									<span role="alert" className="error">
+										{errors.confirmPassword?.message}
+									</span>
+								)}
 							</div>
 							<div className="flex items-center relative">
 								<input
+									{...register('terms')}
 									id="terms"
 									aria-describedby="terms"
 									type="checkbox"
 									className="w-4 h-4 border border-gray-300 bg-gray-50 accent-primary-500 focus:outline-2 focus:outline-primary-500 outline-none"
+									aria-invalid={errors.terms ? 'true' : 'false'}
 								/>
 								<label
 									htmlFor="terms"
@@ -107,12 +165,26 @@ export const App = () => {
 										Условия использования
 									</a>
 								</label>
+								{errors.terms && (
+									<span className="error top-5">
+										{errors.terms?.message}
+									</span>
+								)}
 							</div>
 							<div className="flex gap-5 justify-center pt-2">
-								<button type="submit" className="btn btn-primary">
+								<button
+									type="submit"
+									className="btn btn-primary"
+									disabled={!isDirty || isSubmitting}
+								>
 									Создать аккаунт
 								</button>
-								<button type="button" className="btn btn-error">
+								<button
+									type="button"
+									className="btn btn-error"
+									disabled={!isDirty || isSubmitting}
+									onClick={() => reset()}
+								>
 									Очистить поля
 								</button>
 							</div>
