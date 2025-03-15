@@ -1,4 +1,31 @@
+import { z } from 'zod';
+
 export const App = () => {
+	const formSchema = z
+		.object({
+			username: z
+				.string()
+				.min(2, { message: 'Имя пользователя слишком короткое' })
+				.max(20, { message: 'Имя пользователя слишком длинное' })
+				.transform((v) => v.toLowerCase().replace(/\s+/g, '_')),
+			age: z
+				.number()
+				.optional()
+				.refine((v) => v && v > 17 && v < 66, {
+					message: 'Возраст за пределами допустимого диапазона',
+				}),
+			email: z.string().email('Некорректный email'),
+			password: z.string().min(6, { message: 'Пароль слишком короткий' }),
+			confirmPassword: z.string().min(6, { message: 'Повторите пароль' }),
+			terms: z.literal(true, {
+				errorMap: () => ({ message: 'Примите условия использования' }),
+			}),
+		})
+		.refine((data) => data.password === data.confirmPassword, {
+			path: ['confirmPassword'],
+			message: 'Введенные пароли не совпадают',
+		});
+
 	return (
 		<section className="bg-gray-50">
 			<div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
